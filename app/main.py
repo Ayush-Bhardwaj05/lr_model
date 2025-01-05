@@ -140,18 +140,18 @@ def add_predictions(input_data):
     input_array_pca = pca.transform(input_array_scaled)
 
     # Make predictions with the logistic regression model
-    ensemble_pred = model.predict(input_array_pca)
-    ensemble_probabilities = model.predict_proba(input_array_pca)
+    pred = model.predict(input_array_pca)
+    probabilities = model.predict_proba(input_array_pca)
 
     # Display results in Streamlit
     st.subheader("Cell cluster prediction")
-    if ensemble_pred[0] == 0:
+    if pred[0] == 0:
         st.write("<span class='diagnosis benign'>Benign</span>", unsafe_allow_html=True)
     else:
         st.write("<span class='diagnosis malignant'>Malignant</span>", unsafe_allow_html=True)
 
-    st.write(f"Probability of being benign: {ensemble_probabilities[0][0]:.4f}")
-    st.write(f"Probability of being malignant: {ensemble_probabilities[0][1]:.4f}")
+    st.write(f"Probability of being benign: {probabilities[0][0]:.4f}")
+    st.write(f"Probability of being malignant: {probabilities[0][1]:.4f}")
 
 # Main function to structure the app
 def main():
@@ -175,4 +175,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

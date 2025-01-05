@@ -3,8 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier, ExtraTreesClassifier
-from sklearn.neural_network import MLPClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import accuracy_score, classification_report
 import pickle
@@ -30,27 +29,16 @@ def create_model(data):
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
 
-    # Initialize individual models
-    rf = RandomForestClassifier(n_estimators=100, random_state=42)  # Random Forest
-    ann = MLPClassifier(hidden_layer_sizes=(50,), max_iter=1000, random_state=42)  # Artificial Neural Network
-    ect = ExtraTreesClassifier(n_estimators=100, random_state=42)  # Extra Trees Classifier
-
-    # Create an ensemble model using a VotingClassifier (soft voting)
-    ensemble_model = VotingClassifier(
-        estimators=[('rf', rf), ('ann', ann), ('ect', ect)],
-        voting='soft'  # Use probabilities for voting
-    )
-
-    # Train the ensemble model on the training data
-    ensemble_model.fit(X_train, y_train)
+    # Initialize and train Logistic Regression model
+    lr = LogisticRegression(max_iter=1000, random_state=42)
+    lr.fit(X_train, y_train)
 
     # Evaluate the model on the test data
-    y_pred = ensemble_model.predict(X_test)
-    print('Accuracy
-          :', accuracy_score(y_test, y_pred))
+    y_pred = lr.predict(X_test)
+    print('Accuracy:', accuracy_score(y_test, y_pred))
     print("Classification report:\n", classification_report(y_test, y_pred))
 
-    return ensemble_model, scaler, imputer, pca
+    return lr, scaler, imputer, pca
 
 # Function to load and preprocess the data
 def get_clean_data():
@@ -67,14 +55,14 @@ def main():
     data = get_clean_data()
 
     # Train the model and get the trained scaler, imputer, and PCA
-    ensemble_model, scaler, imputer, pca = create_model(data)
+    lr_model, scaler, imputer, pca = create_model(data)
 
     # Ensure the directory 'model/' exists
     os.makedirs('model', exist_ok=True)
 
     # Save the trained model to a file for later use
     with open('model/lr_model.pkl', 'wb') as f:
-        pickle.dump(ensemble_model, f)
+        pickle.dump(lr_model, f)
 
     # Save the scaler to a file for consistent scaling during predictions
     with open('model/scaler.pkl', 'wb') as f:
